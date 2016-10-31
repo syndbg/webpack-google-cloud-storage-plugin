@@ -4,30 +4,57 @@
   "description": "A Webpack plugin to upload assets in Google Cloud Storage.",
   "main": "dist/webpack-google-cloud-storage-plugin.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "NODE_ENV=production webpack --config webpack.config.js",
+    "example": "cd examples && webpack --config webpack.config.js",
+    "watch": "webpack --config webpack.config.js --watch",
+    "lint": "eslint --quiet --fix --ext .js .",
+    "prep:major": "npm run build && npm version major",
+    "prep:minor": "npm run build && npm version minor",
+    "prep:patch": "npm run build && npm version patch"
   },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/syndbg/webpack-google-cloud-storage-plugin.git"
   },
   "keywords": [
+    "assets",
+    "cloud",
     "google",
-    "cloud",
-    "webpack",
-    "cloud",
-    "storage",
-    "google",
-    "cloud",
+    "node",
+    "plugin",
+    "production",
     "storage",
     "upload",
-    "node",
-    "production",
-    "assets"
+    "webpack"
   ],
   "author": "Anton Antonov <anton.synd.antonov@gmail.com> (https://github.com/syndbg/)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/syndbg/webpack-google-cloud-storage-plugin/issues"
   },
-  "homepage": "https://github.com/syndbg/webpack-google-cloud-storage-plugin#readme"
+  "homepage": "https://github.com/syndbg/webpack-google-cloud-storage-plugin#readme",
+  "devDependencies": {
+    "babel-core": "^6.18.0",
+    "babel-loader": "^6.2.7",
+    "babel-preset-es2015": "^6.18.0",
+    "eslint": "^3.9.0",
+    "eslint-config-airbnb": "^12.0.0",
+    "eslint-loader": "^1.6.0",
+    "eslint-plugin-import": "^2.0.1",
+    "eslint-plugin-jsx-a11y": "^2.2.3",
+    "eslint-plugin-react": "^6.4.1",
+    "json-loader": "^0.5.4",
+    "webpack-node-externals": "^1.5.4"
+  },
+  "dependencies": {
+    "@google-cloud/storage": "^0.4.0",
+    "babel-polyfill": "^6.16.0",
+    "bluebird": "^3.4.6",
+    "lodash.merge": "^4.6.0",
+    "lodash.pick": "^4.4.0",
+    "prop-types": "^0.2.0",
+    "recursive-readdir": "^2.1.0",
+    "webpack": "^1.13.3"
+  }
 }
