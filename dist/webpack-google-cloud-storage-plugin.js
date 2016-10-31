@@ -173,23 +173,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }, {
 	    key: 'isIncluded',
-	    value: function isIncluded(file) {
+	    value: function isIncluded(fileName) {
 	      return this.options.include.some(function (include) {
-	        return include.match(file);
+	        return fileName.match(new RegExp(include));
 	      });
 	    }
 	  }, {
 	    key: 'isExcluded',
-	    value: function isExcluded(file) {
+	    value: function isExcluded(fileName) {
 	      return this.options.exclude.some(function (exclude) {
-	        return exclude.match(file);
+	        return fileName.match(new RegExp(exclude));
 	      });
 	    }
 	  }, {
 	    key: 'isIgnored',
-	    value: function isIgnored(file) {
+	    value: function isIgnored(fileName) {
 	      return this.options.ignoredFiles.some(function (ignoredFile) {
-	        return ignoredFile === file;
+	        return fileName.match(new RegExp(ignoredFile));
 	      });
 	    }
 	  }, {

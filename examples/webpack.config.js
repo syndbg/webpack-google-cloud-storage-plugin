@@ -28,9 +28,9 @@ module.exports = {
   plugins: [
     new WebpackGoogleCloudStoragePlugin({
       directory: './src',
-      // NOTE: Array of filenames to include in the uploading process
-      include: ['app.js'],
-      // NOTE: Array of filenames to exclude in the uploading process
+      // NOTE: Array of filename strings (or regex) to include in the uploading process
+      include: ['.js'],
+      // NOTE: Array of filename strings (or regex) to exclude in the uploading process
       exclude: ['cats.js'],
       // NOTE: Options passed directly to
       // Google cloud Node Storage client.

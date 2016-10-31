@@ -85,16 +85,16 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
     );
   }
 
-  isIncluded(file) {
-    return this.options.include.some(include => include.match(file));
+  isIncluded(fileName) {
+    return this.options.include.some(include => fileName.match(new RegExp(include)));
   }
 
-  isExcluded(file) {
-    return this.options.exclude.some(exclude => exclude.match(file));
+  isExcluded(fileName) {
+    return this.options.exclude.some(exclude => fileName.match(new RegExp(exclude)));
   }
 
-  isIgnored(file) {
-    return this.options.ignoredFiles.some(ignoredFile => ignoredFile === file);
+  isIgnored(fileName) {
+    return this.options.ignoredFiles.some(ignoredFile => fileName.match(new RegExp(ignoredFile)));
   }
 
   handleFiles(files) {
