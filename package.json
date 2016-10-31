@@ -1,0 +1,33 @@
+{
+  "name": "webpack-google-cloud-storage-plugin",
+  "version": "0.1.0",
+  "description": "A Webpack plugin to upload assets in Google Cloud Storage.",
+  "main": "dist/webpack-google-cloud-storage-plugin.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/syndbg/webpack-google-cloud-storage-plugin.git"
+  },
+  "keywords": [
+    "google",
+    "cloud",
+    "webpack",
+    "cloud",
+    "storage",
+    "google",
+    "cloud",
+    "storage",
+    "upload",
+    "node",
+    "production",
+    "assets"
+  ],
+  "author": "Anton Antonov <anton.synd.antonov@gmail.com> (https://github.com/syndbg/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/syndbg/webpack-google-cloud-storage-plugin/issues"
+  },
+  "homepage": "https://github.com/syndbg/webpack-google-cloud-storage-plugin#readme"
+}
