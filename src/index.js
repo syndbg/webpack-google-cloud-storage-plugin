@@ -38,7 +38,7 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
 
   static handleErrors(error, compilation, cb) {
     compilation.errors.push(
-      new Error(`WebpackGoogleCloudStoragePlugin: ${error}`)
+      new Error(`WebpackGoogleCloudStoragePlugin: ${error.stack}`)
     );
     cb();
   }
