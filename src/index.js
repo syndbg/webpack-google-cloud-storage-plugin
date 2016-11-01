@@ -62,6 +62,8 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
         'exclude',
         'basePath',
       ]);
+
+    this.options.exclude = this.options.exclude || [];
   }
 
   connect() {

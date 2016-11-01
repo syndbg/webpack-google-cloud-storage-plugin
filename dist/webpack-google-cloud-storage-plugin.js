@@ -107,7 +107,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'handleErrors',
 	    value: function handleErrors(error, compilation, cb) {
-	      compilation.errors.push(new Error('WebpackGoogleCloudStoragePlugin: ' + error));
+	      compilation.errors.push(new Error('WebpackGoogleCloudStoragePlugin: ' + error.stack));
 	      cb();
 	    }
 	  }, {
@@ -147,6 +147,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.uploadOptions.destinationNameFn = this.uploadOptions.destinationNameFn || this.constructor.defaultDestinationNameFn;
 
 	    this.options = (0, _lodash2.default)(options, ['directory', 'include', 'exclude', 'basePath']);
+
+	    this.options.exclude = this.options.exclude || [];
 	  }
 
 	  _createClass(WebpackGoogleCloudStoragePlugin, [{
