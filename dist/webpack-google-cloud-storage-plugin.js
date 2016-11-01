@@ -190,7 +190,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'isIgnored',
 	    value: function isIgnored(fileName) {
-	      return this.options.ignoredFiles.some(function (ignoredFile) {
+	      return this.constructor.ignoredFiles.some(function (ignoredFile) {
 	        return fileName.match(new RegExp(ignoredFile));
 	      });
 	    }

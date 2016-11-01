@@ -96,7 +96,9 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
   }
 
   isIgnored(fileName) {
-    return this.options.ignoredFiles.some(ignoredFile => fileName.match(new RegExp(ignoredFile)));
+    return this.constructor.ignoredFiles.some(
+      ignoredFile => fileName.match(new RegExp(ignoredFile))
+    );
   }
 
   handleFiles(files) {
