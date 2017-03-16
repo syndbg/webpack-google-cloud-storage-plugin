@@ -19,6 +19,7 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
         forceCreateBucket: PropTypes.bool,
         gzip: PropTypes.bool,
         destinationNameFn: PropTypes.func,
+        makePublic: PropTypes.bool,
       }),
     };
   }
@@ -137,6 +138,7 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
        bucket.upload(file.path, {
          destination: this.uploadOptions.destinationNameFn(file),
          gzip: this.uploadOptions.gzip || false,
+         public: this.uploadOptions.makePublic || false,
        })
     );
     return Promise.all(uploadFiles);
