@@ -45,6 +45,8 @@ module.exports = {
         destinationNameFn: file =>
            path.join('assets', file.path)
         ,
+        // Make file public
+        makePublic: true,
       },
     }),
   ],

@@ -122,7 +122,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	          bucketName: _propTypes2.default.string.isRequired,
 	          forceCreateBucket: _propTypes2.default.bool,
 	          gzip: _propTypes2.default.bool,
-	          destinationNameFn: _propTypes2.default.func
+	          destinationNameFn: _propTypes2.default.func,
+	          makePublic: _propTypes2.default.bool
 	        })
 	      };
 	    }
@@ -248,7 +249,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var uploadFiles = files.map(function (file) {
 	        return bucket.upload(file.path, {
 	          destination: _this4.uploadOptions.destinationNameFn(file),
-	          gzip: _this4.uploadOptions.gzip || false
+	          gzip: _this4.uploadOptions.gzip || false,
+	          public: _this4.uploadOptions.makePublic || false
 	        });
 	      });
 	      return _bluebird2.default.all(uploadFiles);
