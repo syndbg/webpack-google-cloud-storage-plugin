@@ -1,6 +1,6 @@
 {
   "name": "webpack-google-cloud-storage-plugin",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "A Webpack plugin to upload assets in Google Cloud Storage.",
   "main": "dist/webpack-google-cloud-storage-plugin.js",
   "scripts": {
