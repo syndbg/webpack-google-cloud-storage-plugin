@@ -122,6 +122,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          bucketName: _propTypes2.default.string.isRequired,
 	          forceCreateBucket: _propTypes2.default.bool,
 	          gzip: _propTypes2.default.bool,
+	          public: _propTypes2.default.bool,
 	          destinationNameFn: _propTypes2.default.func,
 	          makePublic: _propTypes2.default.bool
 	        })

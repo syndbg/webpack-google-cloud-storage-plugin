@@ -45,8 +45,10 @@ module.exports = {
         destinationNameFn: file =>
            path.join('assets', file.path)
         ,
-        // Make file public
-        makePublic: true,
+        // Make gzip compressed (default: false)
+        gzip: true
+        // Make file public (default: false)
+        public: true,
       },
     }),
   ],

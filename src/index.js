@@ -18,6 +18,7 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
         bucketName: PropTypes.string.isRequired,
         forceCreateBucket: PropTypes.bool,
         gzip: PropTypes.bool,
+        public: PropTypes.bool,
         destinationNameFn: PropTypes.func,
         makePublic: PropTypes.bool,
       }),
