@@ -1,5 +1,7 @@
 # webpack-google-cloud-storage-plugin
 
+[![npm version](https://badge.fury.io/js/webpack-google-cloud-storage-plugin.svg)](https://badge.fury.io/js/webpack-google-cloud-storage-plugin)
+
 A Webpack plugin to upload assets in Google Cloud Storage.
 
 ## Installation
