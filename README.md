@@ -48,7 +48,7 @@ module.exports = {
            path.join('assets', file.path)
         ,
         // Make gzip compressed (default: false)
-        gzip: true
+        gzip: true,
         // Make file public (default: false)
         public: true,
       },
