@@ -50,7 +50,7 @@ module.exports = {
         // Make gzip compressed (default: false)
         gzip: true,
         // Make file public (default: false)
-        public: true,
+        makePublic: true,
       },
     }),
   ],
