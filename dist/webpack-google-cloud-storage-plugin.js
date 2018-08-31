@@ -88,6 +88,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var recursive = _bluebird2.default.promisify(__webpack_require__(8));
 
+	var pluginName = 'WebpackGoogleCloudStoragePlugin';
+	var hook = function hook(compiler, cb) {
+	  // new webpack
+	  if (compiler.hooks) {
+	    compiler.hooks.afterEmit.tapAsync(pluginName, cb);
+	    return;
+	  }
+	  // old webpack
+	  compiler.plugin('after-emit', cb);
+	};
+
 	module.exports = function () {
 	  _createClass(WebpackGoogleCloudStoragePlugin, null, [{
 	    key: 'defaultDestinationNameFn',
@@ -107,7 +118,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'handleErrors',
 	    value: function handleErrors(error, compilation, cb) {
-	      compilation.errors.push(new Error('WebpackGoogleCloudStoragePlugin: ' + error.stack));
+	      compilation.errors.push(new Error(pluginName + ': ' + error.stack));
 	      cb();
 	    }
 	  }, {
@@ -140,7 +151,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    _classCallCheck(this, WebpackGoogleCloudStoragePlugin);
 
-	    _propTypes2.default.validateWithErrors(this.constructor.schema, options, 'WebpackGoogleCloudStoragePlugin');
+	    _propTypes2.default.validateWithErrors(this.constructor.schema, options, pluginName);
 
 	    this.isConnected = false;
 
@@ -214,8 +225,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      // NOTE: Use specified directory, webpack.config.output or current dir.
 	      this.options.directory = this.options.directory || compiler.options.output.path || compiler.options.output.context || '.';
-
-	      compiler.plugin('after-emit', function (compilation, cb) {
+	      hook(compiler, function (compilation, cb) {
 	        if (_this3.options.directory) {
 	          recursive(_this3.options.directory, _this3.options.exclude).then(function (files) {
 	            return files.map(function (f) {

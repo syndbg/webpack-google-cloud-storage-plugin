@@ -7,6 +7,17 @@ import path from 'path';
 
 const recursive = Promise.promisify(require('recursive-readdir'));
 
+const pluginName = 'WebpackGoogleCloudStoragePlugin';
+const hook = (compiler, cb) => {
+  // new webpack
+  if (compiler.hooks) {
+    compiler.hooks.afterEmit.tapAsync(pluginName, cb);
+    return;
+  }
+  // old webpack
+  compiler.plugin('after-emit', cb);
+};
+
 module.exports = class WebpackGoogleCloudStoragePlugin {
   static get schema() {
     return {
@@ -40,7 +51,7 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
 
   static handleErrors(error, compilation, cb) {
     compilation.errors.push(
-      new Error(`WebpackGoogleCloudStoragePlugin: ${error.stack}`)
+      new Error(`${pluginName}: ${error.stack}`)
     );
     cb();
   }
@@ -48,7 +59,7 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
   constructor(options = {}) {
     PropTypes.validateWithErrors(this.constructor.schema,
                                  options,
-                                 'WebpackGoogleCloudStoragePlugin');
+                                 pluginName);
 
     this.isConnected = false;
 
@@ -116,8 +127,7 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
                              compiler.options.output.path ||
                              compiler.options.output.context ||
                              '.';
-
-    compiler.plugin('after-emit', (compilation, cb) => {
+    hook(compiler, (compilation, cb) => {
       if (this.options.directory) {
         recursive(this.options.directory, this.options.exclude)
           .then(files => files.map(f => ({ name: path.basename(f), path: f })))
