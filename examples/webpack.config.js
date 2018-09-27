@@ -1,6 +1,6 @@
 // NOTE: Taken from https://webpack.github.io/docs/usage.html
 const path = require('path');
-const WebpackGoogleCloudStoragePlugin = require('../dist/webpack-google-cloud-storage-plugin.js');
+const WebpackGoogleCloudStoragePlugin = require('../dist/index.js');
 
 module.exports = {
   context: __dirname,
