@@ -32,6 +32,7 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
         public: PropTypes.bool,
         destinationNameFn: PropTypes.func,
         makePublic: PropTypes.bool,
+        resumable: PropTypes.bool,
       }),
     };
   }
@@ -150,6 +151,7 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
          destination: this.uploadOptions.destinationNameFn(file),
          gzip: this.uploadOptions.gzip || false,
          public: this.uploadOptions.makePublic || false,
+         resumable: this.uploadOptions.resumable,
        })
     );
     return Promise.all(uploadFiles);
