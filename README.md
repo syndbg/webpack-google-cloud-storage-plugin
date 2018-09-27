@@ -51,6 +51,9 @@ module.exports = {
         gzip: true,
         // Make file public (default: false)
         makePublic: true,
+        // Resumable upload (default: true)
+        // https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload
+        resumable: true,
       },
     }),
   ],
