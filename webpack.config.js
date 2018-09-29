@@ -2,8 +2,7 @@ const webpack = require('webpack');
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
 
-const devBuild = process.env.NODE_ENV !== 'production';
-const nodeEnv = devBuild ? 'development' : 'production';
+const nodeEnv = process.env.NODE_ENV === 'production' ? 'production' : 'development';
 
 module.exports = {
   // the project dir
@@ -57,7 +56,11 @@ module.exports = {
       },
     ],
   },
-  externals: [nodeExternals({
-    whitelist: [/^lodash/, '@google-cloud', 'prop-types'],
-  })],
+  externals: [
+    nodeExternals(
+      {
+        whitelist: [/^lodash/, '@google-cloud', 'prop-types'],
+      }
+    ),
+  ],
 };

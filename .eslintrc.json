@@ -7,17 +7,20 @@
       "jsx": true
     }
   },
+  "indent": ["error", 2],
   "plugins": [
     "react",
     "jsx-a11y",
     "import"
   ],
   "rules": {
-    "import/no-extraneous-dependencies": ["warn",
-                                          {
-                                            "devDependencies": true,
-                                            "optionalDependencies": true,
-                                            "peerDependencies": false
-                                          }]
+    "import/no-extraneous-dependencies": [
+      "warn",
+      {
+        "devDependencies": true,
+        "optionalDependencies": true,
+        "peerDependencies": false
+      }
+    ]
   }
 }

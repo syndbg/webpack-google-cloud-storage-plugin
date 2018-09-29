@@ -1,9 +1,9 @@
 import Promise from 'bluebird';
 import PropTypes from 'prop-types';
-import pick from 'lodash.pick';
 import merge from 'lodash.merge';
 import gcs from '@google-cloud/storage';
 import path from 'path';
+import { pick } from './utils';
 
 const recursive = Promise.promisify(require('recursive-readdir'));
 
@@ -25,15 +25,17 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
       include: PropTypes.array,
       exclude: PropTypes.array,
       storageOptions: PropTypes.object.isRequired,
-      uploadOptions: PropTypes.shape({
-        bucketName: PropTypes.string.isRequired,
-        forceCreateBucket: PropTypes.bool,
-        gzip: PropTypes.bool,
-        public: PropTypes.bool,
-        destinationNameFn: PropTypes.func,
-        makePublic: PropTypes.bool,
-        resumable: PropTypes.bool,
-      }),
+      uploadOptions: PropTypes.shape(
+        {
+          bucketName: PropTypes.string.isRequired,
+          forceCreateBucket: PropTypes.bool,
+          gzip: PropTypes.bool,
+          public: PropTypes.bool,
+          destinationNameFn: PropTypes.func,
+          makePublic: PropTypes.bool,
+          resumable: PropTypes.bool,
+        }
+      ),
     };
   }
 
@@ -58,9 +60,11 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
   }
 
   constructor(options = {}) {
-    PropTypes.validateWithErrors(this.constructor.schema,
-                                 options,
-                                 pluginName);
+    PropTypes.validateWithErrors(
+      this.constructor.schema,
+      options,
+      pluginName
+    );
 
     this.isConnected = false;
 
@@ -69,13 +73,15 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
     this.uploadOptions.destinationNameFn = this.uploadOptions.destinationNameFn ||
       this.constructor.defaultDestinationNameFn;
 
-    this.options = pick(options,
+    this.options = pick(
+      options,
       [
         'directory',
         'include',
         'exclude',
         'basePath',
-      ]);
+      ]
+    );
 
     this.options.exclude = this.options.exclude || [];
   }
@@ -85,18 +91,24 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
       return;
     }
 
-    this.client = gcs(merge(this.storageOptions, {
-      promise: Promise,
-    }));
+    this.client = gcs(
+      merge(
+        this.storageOptions,
+        {
+          promise: Promise,
+        }
+      )
+    );
 
     this.isConnected = true;
   }
 
   filterFiles(files) {
-    return Promise.resolve(files.filter(file =>
-                                        this.isIncluded(file.name) &&
-                                        !this.isExcluded(file.name) &&
-                                        !this.isIgnored(file.name)
+    return Promise.resolve(
+      files.filter(file =>
+        this.isIncluded(file.name) &&
+        !this.isExcluded(file.name) &&
+        !this.isIgnored(file.name)
       )
     );
   }
@@ -147,12 +159,15 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
   uploadFiles(files = []) {
     const bucket = this.client.bucket(this.uploadOptions.bucketName);
     const uploadFiles = files.map(file =>
-       bucket.upload(file.path, {
-         destination: this.uploadOptions.destinationNameFn(file),
-         gzip: this.uploadOptions.gzip || false,
-         public: this.uploadOptions.makePublic || false,
-         resumable: this.uploadOptions.resumable,
-       })
+      bucket.upload(
+        file.path,
+        {
+          destination: this.uploadOptions.destinationNameFn(file),
+          gzip: this.uploadOptions.gzip || false,
+          public: this.uploadOptions.makePublic || false,
+          resumable: this.uploadOptions.resumable,
+        }
+      )
     );
     return Promise.all(uploadFiles);
   }

@@ -1,3 +1,7 @@
+# Local npm pack(s)
+*.tgz
+# JetBrains IDEs
+.idea
 # Logs
 logs
 *.log
