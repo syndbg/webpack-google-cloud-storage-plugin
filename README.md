@@ -19,17 +19,15 @@ module.exports = {
   plugins: [
     new WebpackGoogleCloudStoragePlugin({
       directory: './src',
-      // NOTE: Array of filenames to include in the uploading process
+      // NOTE: Array of regexes matching filenames to include in the uploading process
       include: ['app.js'],
-      // NOTE: Array of filenames to exclude in the uploading process
+      // NOTE: Array of regexes matching filenames to exclude in the uploading process
       exclude: ['cats.js'],
-      // NOTE: Options passed directly to
-      // Google cloud Node Storage client.
-      // This is mostly authentication-wise.
-      // For more information:
+      // NOTE: Options passed directly to Google cloud Node Storage client. This is 
+      // mostly for authentication-wise. For more information:
       // https://github.com/GoogleCloudPlatform/google-cloud-node/tree/master/packages/storage#authentication
       storageOptions: {
-        // project id is optional if you specify a keyFilename
+        // projectId is optional if you specify a keyFilename
         projectId: 'grape-spaceship-123',
         // keyFilename: '/path/to/keyfile.json'
         // keyFilename: './examples/my-credentials.json', // note: Filename, not FileName
