@@ -58,8 +58,8 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
    *
    * @param {*} file { path: string }
    */
-  static defaultMetadataFn(file) {
-    return {}
+  static defaultMetadataFn(/* file */) {
+    return {};
   }
 
   static getAssetFiles({ assets }) {
@@ -179,12 +179,12 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
     // http://bluebirdjs.com/docs/api/promise.map.html#map-option-concurrency
     return Promise.map(files,
       file => bucket.upload(file.path, {
-          destination: this.uploadOptions.destinationNameFn(file),
-          gzip: this.uploadOptions.gzip || false,
-          public: this.uploadOptions.makePublic || false,
-          resumable: this.uploadOptions.resumable,
-          metadata: this.uploadOptions.metadataFn(file)
-        }),
+        destination: this.uploadOptions.destinationNameFn(file),
+        gzip: this.uploadOptions.gzip || false,
+        public: this.uploadOptions.makePublic || false,
+        resumable: this.uploadOptions.resumable,
+        metadata: this.uploadOptions.metadataFn(file),
+      }),
       { concurrency: 10 });
   }
 };
