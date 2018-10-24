@@ -29,9 +29,10 @@ module.exports = {
       // For more information:
       // https://github.com/GoogleCloudPlatform/google-cloud-node/tree/master/packages/storage#authentication
       storageOptions: {
+        // project id is optional if you specify a keyFilename
         projectId: 'grape-spaceship-123',
         // keyFilename: '/path/to/keyfile.json'
-        // keyFileName: './examples/my-credentials.json',
+        // keyFilename: './examples/my-credentials.json', // note: Filename, not FileName
         // key: 'mykey',
         // credentials: require('/path/to/credentials.json'),
       },
@@ -47,6 +48,14 @@ module.exports = {
         destinationNameFn: file =>
            path.join('assets', file.path)
         ,
+        // Available properties in returned object are defined here;
+        // https://cloud.google.com/storage/docs/json_api/v1/objects/insert#request_properties_JSON
+        // It will be passed into 'upload' here:
+        // https://github.com/googleapis/nodejs-storage/blob/master/samples/files.js#L116
+        metadataFn: file => ({
+          // cache it a little longer!
+          cacheControl: 'public, max-age=31536000',
+        }),
         // Make gzip compressed (default: false)
         gzip: true,
         // Make file public (default: false)

@@ -8,6 +8,7 @@ import { pick } from './utils';
 const recursive = Promise.promisify(require('recursive-readdir'));
 
 const pluginName = 'WebpackGoogleCloudStoragePlugin';
+
 const hook = (compiler, cb) => {
   // new webpack
   if (compiler.hooks) {
@@ -47,6 +48,19 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
     return file.path;
   }
 
+  /**
+   * Return an object following this schema:
+   * 
+   * - https://cloud.google.com/nodejs/docs/reference/storage/2.0.x/Bucket#upload 
+   * - https://cloud.google.com/storage/docs/json_api/v1/objects/insert#request_properties_JSON
+   * - Example: https://github.com/googleapis/nodejs-storage/blob/master/samples/files.js#L119
+   * 
+   * @param {*} file { path: string }
+   */
+  static defaultMetadataFn(file) {
+    return {}
+  }
+
   static getAssetFiles({ assets }) {
     const files = assets.map((value, name) => ({ name, path: value.existsAt }));
     return Promise.resolve(files);
@@ -72,6 +86,8 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
     this.uploadOptions = options.uploadOptions;
     this.uploadOptions.destinationNameFn = this.uploadOptions.destinationNameFn ||
       this.constructor.defaultDestinationNameFn;
+    this.uploadOptions.metadataFn = this.uploadOptions.metadataFn ||
+      this.constructor.defaultMetadataFn;
 
     this.options = pick(
       options,
@@ -158,7 +174,10 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
 
   uploadFiles(files = []) {
     const bucket = this.client.bucket(this.uploadOptions.bucketName);
-    const uploadFiles = files.map(file =>
+    // see https://hackernoon.com/concurrency-control-in-promises-with-bluebird-977249520f23
+    // http://bluebirdjs.com/docs/api/promise.map.html#map-option-concurrency
+    return Promise.map(files,
+      file =>
       bucket.upload(
         file.path,
         {
@@ -167,8 +186,7 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
           public: this.uploadOptions.makePublic || false,
           resumable: this.uploadOptions.resumable,
         }
-      )
-    );
-    return Promise.all(uploadFiles);
+      ),
+      { concurrency: 10 });
   }
 };
