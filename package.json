@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "NODE_ENV=production webpack --config webpack.config.js",
+    "prepare": "npm run build",
     "example": "cd examples && webpack --config webpack.config.js",
     "watch": "webpack --config webpack.config.js --watch",
     "lint": "eslint --quiet --fix --ext .js .",
