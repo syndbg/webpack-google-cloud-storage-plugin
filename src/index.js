@@ -33,6 +33,7 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
           gzip: PropTypes.bool,
           public: PropTypes.bool,
           destinationNameFn: PropTypes.func,
+          metadataFn: PropTypes.func,
           makePublic: PropTypes.bool,
           resumable: PropTypes.bool,
         }
@@ -177,16 +178,13 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
     // see https://hackernoon.com/concurrency-control-in-promises-with-bluebird-977249520f23
     // http://bluebirdjs.com/docs/api/promise.map.html#map-option-concurrency
     return Promise.map(files,
-      file =>
-      bucket.upload(
-        file.path,
-        {
+      file => bucket.upload(file.path, {
           destination: this.uploadOptions.destinationNameFn(file),
           gzip: this.uploadOptions.gzip || false,
           public: this.uploadOptions.makePublic || false,
           resumable: this.uploadOptions.resumable,
-        }
-      ),
+          metadata: this.uploadOptions.metadataFn(file)
+        }),
       { concurrency: 10 });
   }
 };
