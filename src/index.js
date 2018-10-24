@@ -51,11 +51,11 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
 
   /**
    * Return an object following this schema:
-   * 
-   * - https://cloud.google.com/nodejs/docs/reference/storage/2.0.x/Bucket#upload 
+   *
+   * - https://cloud.google.com/nodejs/docs/reference/storage/2.0.x/Bucket#upload
    * - https://cloud.google.com/storage/docs/json_api/v1/objects/insert#request_properties_JSON
    * - Example: https://github.com/googleapis/nodejs-storage/blob/master/samples/files.js#L119
-   * 
+   *
    * @param {*} file { path: string }
    */
   static defaultMetadataFn(file) {
