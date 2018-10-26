@@ -36,6 +36,7 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
           metadataFn: PropTypes.func,
           makePublic: PropTypes.bool,
           resumable: PropTypes.bool,
+          concurrency: PropTypes.number,
         }
       ),
     };
@@ -185,6 +186,6 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
         resumable: this.uploadOptions.resumable,
         metadata: this.uploadOptions.metadataFn(file),
       }),
-      { concurrency: 10 });
+      { concurrency: this.uploadOptions.concurrency || 10 });
   }
 };
