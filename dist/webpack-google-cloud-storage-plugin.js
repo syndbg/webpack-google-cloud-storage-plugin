@@ -87,6 +87,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var recursive = _bluebird2.default.promisify(__webpack_require__(8));
 
 	var pluginName = 'WebpackGoogleCloudStoragePlugin';
+
 	var hook = function hook(compiler, cb) {
 	  // new webpack
 	  if (compiler.hooks) {
@@ -102,6 +103,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'defaultDestinationNameFn',
 	    value: function defaultDestinationNameFn(file) {
 	      return file.path;
+	    }
+
+	    /**
+	     * Return an object following this schema:
+	     *
+	     * - https://cloud.google.com/nodejs/docs/reference/storage/2.0.x/Bucket#upload
+	     * - https://cloud.google.com/storage/docs/json_api/v1/objects/insert#request_properties_JSON
+	     * - Example: https://github.com/googleapis/nodejs-storage/blob/master/samples/files.js#L119
+	     *
+	     * @param {*} file { path: string }
+	     */
+
+	  }, {
+	    key: 'defaultMetadataFn',
+	    value: function defaultMetadataFn() /* file */{
+	      return {};
 	    }
 	  }, {
 	    key: 'getAssetFiles',
@@ -133,8 +150,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	          gzip: _propTypes2.default.bool,
 	          public: _propTypes2.default.bool,
 	          destinationNameFn: _propTypes2.default.func,
+	          metadataFn: _propTypes2.default.func,
 	          makePublic: _propTypes2.default.bool,
-	          resumable: _propTypes2.default.bool
+	          resumable: _propTypes2.default.bool,
+	          concurrency: _propTypes2.default.number
 	        })
 	      };
 	    }
@@ -157,6 +176,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.storageOptions = options.storageOptions;
 	    this.uploadOptions = options.uploadOptions;
 	    this.uploadOptions.destinationNameFn = this.uploadOptions.destinationNameFn || this.constructor.defaultDestinationNameFn;
+	    this.uploadOptions.metadataFn = this.uploadOptions.metadataFn || this.constructor.defaultMetadataFn;
 
 	    this.options = (0, _utils.pick)(options, ['directory', 'include', 'exclude', 'basePath']);
 
@@ -256,15 +276,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var files = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 
 	      var bucket = this.client.bucket(this.uploadOptions.bucketName);
-	      var uploadFiles = files.map(function (file) {
+	      // see https://hackernoon.com/concurrency-control-in-promises-with-bluebird-977249520f23
+	      // http://bluebirdjs.com/docs/api/promise.map.html#map-option-concurrency
+	      return _bluebird2.default.map(files, function (file) {
 	        return bucket.upload(file.path, {
 	          destination: _this4.uploadOptions.destinationNameFn(file),
 	          gzip: _this4.uploadOptions.gzip || false,
 	          public: _this4.uploadOptions.makePublic || false,
-	          resumable: _this4.uploadOptions.resumable
+	          resumable: _this4.uploadOptions.resumable,
+	          metadata: _this4.uploadOptions.metadataFn(file)
 	        });
-	      });
-	      return _bluebird2.default.all(uploadFiles);
+	      }, { concurrency: this.uploadOptions.concurrency || 10 });
 	    }
 	  }]);
 
