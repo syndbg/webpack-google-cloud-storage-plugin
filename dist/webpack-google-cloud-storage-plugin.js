@@ -137,6 +137,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	      cb();
 	    }
 	  }, {
+	    key: 'regexpToIgnoreFunction',
+	    value: function regexpToIgnoreFunction(regexp) {
+	      return function (file) {
+	        return regexp.test(file);
+	      };
+	    }
+	  }, {
 	    key: 'schema',
 	    get: function get() {
 	      return {
@@ -160,7 +167,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'ignoredFiles',
 	    get: function get() {
-	      return ['.DS_Store'];
+	      return ['.DS_Store'].map(function (pattern) {
+	        return new RegExp(pattern);
+	      });
 	    }
 	  }]);
 
@@ -180,7 +189,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    this.options = (0, _utils.pick)(options, ['directory', 'include', 'exclude', 'basePath']);
 
-	    this.options.exclude = this.options.exclude || [];
+	    // transform the RegExp patterns immediately to minimize regexp object creation
+	    this.options.exclude = (this.options.exclude || []).map(function (pattern) {
+	      return new RegExp(pattern);
+	    });
+	    this.options.include = (this.options.include || []).map(function (pattern) {
+	      return new RegExp(pattern);
+	    });
 	  }
 
 	  _createClass(WebpackGoogleCloudStoragePlugin, [{
@@ -208,22 +223,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }, {
 	    key: 'isIncluded',
 	    value: function isIncluded(fileName) {
-	      return this.options.include.some(function (include) {
-	        return fileName.match(new RegExp(include));
+	      return this.options.include.some(function (regexp) {
+	        return fileName.match(regexp);
 	      });
 	    }
 	  }, {
 	    key: 'isExcluded',
 	    value: function isExcluded(fileName) {
-	      return this.options.exclude.some(function (exclude) {
-	        return fileName.match(new RegExp(exclude));
+	      return this.options.exclude.some(function (regexp) {
+	        return fileName.match(regexp);
 	      });
 	    }
 	  }, {
 	    key: 'isIgnored',
 	    value: function isIgnored(fileName) {
-	      return this.constructor.ignoredFiles.some(function (ignoredFile) {
-	        return fileName.match(new RegExp(ignoredFile));
+	      return this.constructor.ignoredFiles.some(function (regexp) {
+	        return fileName.match(regexp);
 	      });
 	    }
 	  }, {
@@ -246,7 +261,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	      this.options.directory = this.options.directory || compiler.options.output.path || compiler.options.output.context || '.';
 	      hook(compiler, function (compilation, cb) {
 	        if (_this3.options.directory) {
-	          recursive(_this3.options.directory, _this3.options.exclude).then(function (files) {
+	          recursive(_this3.options.directory,
+	          // recursive-readdr expects glob formats, convert our regexps to function so it will
+	          // be compatible
+	          _this3.options.exclude.map(_this3.constructor.regexpToIgnoreFunction)).then(function (files) {
 	            return files.map(function (f) {
 	              return { name: _path2.default.basename(f), path: f };
 	            });
