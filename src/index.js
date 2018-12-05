@@ -43,7 +43,7 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
   }
 
   static get ignoredFiles() {
-    return ['.DS_Store'];
+    return ['.DS_Store'].map(pattern => new RegExp(pattern));
   }
 
   static defaultDestinationNameFn(file) {
@@ -75,6 +75,10 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
     cb();
   }
 
+  static regexpToIgnoreFunction(regexp) {
+    return file => regexp.test(file);
+  }
+
   constructor(options = {}) {
     PropTypes.validateWithErrors(
       this.constructor.schema,
@@ -101,7 +105,9 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
       ]
     );
 
-    this.options.exclude = this.options.exclude || [];
+    // transform the RegExp patterns immediately to minimize regexp object creation
+    this.options.exclude = (this.options.exclude || []).map(pattern => new RegExp(pattern));
+    this.options.include = (this.options.include || []).map(pattern => new RegExp(pattern));
   }
 
   connect() {
@@ -132,17 +138,15 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
   }
 
   isIncluded(fileName) {
-    return this.options.include.some(include => fileName.match(new RegExp(include)));
+    return this.options.include.some(regexp => fileName.match(regexp));
   }
 
   isExcluded(fileName) {
-    return this.options.exclude.some(exclude => fileName.match(new RegExp(exclude)));
+    return this.options.exclude.some(regexp => fileName.match(regexp));
   }
 
   isIgnored(fileName) {
-    return this.constructor.ignoredFiles.some(
-      ignoredFile => fileName.match(new RegExp(ignoredFile))
-    );
+    return this.constructor.ignoredFiles.some(regexp => fileName.match(regexp));
   }
 
   handleFiles(files) {
@@ -160,7 +164,12 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
                              '.';
     hook(compiler, (compilation, cb) => {
       if (this.options.directory) {
-        recursive(this.options.directory, this.options.exclude)
+        recursive(
+          this.options.directory,
+          // recursive-readdr expects glob formats, convert our regexps to function so it will
+          // be compatible
+          this.options.exclude.map(this.constructor.regexpToIgnoreFunction)
+        )
           .then(files => files.map(f => ({ name: path.basename(f), path: f })))
           .then(files => this.handleFiles(files))
           .then(() => cb())
