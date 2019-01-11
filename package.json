@@ -10,6 +10,7 @@
     "example": "cd examples && webpack --config webpack.config.js",
     "watch": "webpack --config webpack.config.js --watch",
     "lint": "eslint --quiet --fix --ext .js .",
+    "test": "NODE_ENV='test' mocha -t 10000 --require babel-register",
     "prep:major": "npm run build && npm version major",
     "prep:minor": "npm run build && npm version minor",
     "prep:patch": "npm run build && npm version patch"
@@ -46,6 +47,7 @@
     "eslint-plugin-jsx-a11y": "^2.2.3",
     "eslint-plugin-react": "^6.4.1",
     "json-loader": "^0.5.4",
+    "mocha": "^5.2.0",
     "webpack": "^1.13.3",
     "webpack-node-externals": "^1.5.4"
   },
