@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "main": "webpack.config.js",
-  "bin": {
-    "examples": "app.bundle.js"
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "NODE_ENV=production webpack --config webpack.config.js"
@@ -17,7 +14,8 @@
     "babel-loader": "^7.1.5",
     "babel-polyfill": "^6.26.0",
     "jquery": "^3.3.1",
-    "webpack": "^4.28.4"
+    "webpack": "^4.28.4",
+    "webpack-google-cloud-storage-plugin": "file:.."
   },
   "devDependencies": {
     "webpack-cli": "^3.2.1"
