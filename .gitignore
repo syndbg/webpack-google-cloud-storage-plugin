@@ -1,3 +1,4 @@
+examples/bin
 # Local npm pack(s)
 *.tgz
 # JetBrains IDEs
