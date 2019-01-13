@@ -7,24 +7,23 @@ module.exports = {
   entry: './src/app.js',
 
   output: {
-    path: './bin',
+    path: path.resolve('./bin'),
     filename: 'app.bundle.js',
   },
 
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
         include: /src/,
         exclude: /node_modules/,
-        loader: 'babel',
+        loader: 'babel-loader',
         query: {
           presets: ['es2015'],
         },
       },
     ],
   },
-  debug: true,
   plugins: [
     new WebpackGoogleCloudStoragePlugin({
       directory: './src',
