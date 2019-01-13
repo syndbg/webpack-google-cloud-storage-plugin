@@ -4,13 +4,12 @@
   "description": "A Webpack plugin to upload assets in Google Cloud Storage.",
   "main": "dist/webpack-google-cloud-storage-plugin.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "NODE_ENV='test' mocha -t 10000 --require babel-register",
     "build": "NODE_ENV=production webpack --config webpack.config.js",
     "prepare": "npm run build",
     "example": "cd examples && webpack --config webpack.config.js",
     "watch": "webpack --config webpack.config.js --watch",
     "lint": "eslint --quiet --fix --ext .js .",
-    "test": "NODE_ENV='test' mocha -t 10000 --require babel-register",
     "prep:major": "npm run build && npm version major",
     "prep:minor": "npm run build && npm version minor",
     "prep:patch": "npm run build && npm version patch"
