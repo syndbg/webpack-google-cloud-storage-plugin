@@ -1,4 +1,4 @@
-import assert from 'assert';
+import { expect } from 'chai';
 
 import { pick } from '../src/utils';
 
@@ -13,8 +13,7 @@ describe('.pick', () => {
 
     const result = pick(obj, 'a');
 
-    assert.deepEqual(
-      result,
+    expect(result).to.deep.equal(
       {
         a: '1',
       },

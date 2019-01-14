@@ -38,7 +38,7 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
           resumable: PropTypes.bool,
           concurrency: PropTypes.number,
         }
-      ),
+      ).isRequired,
     };
   }
 
@@ -90,6 +90,9 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
       this.constructor.defaultDestinationNameFn;
     this.uploadOptions.metadataFn = this.uploadOptions.metadataFn ||
       this.constructor.defaultMetadataFn;
+    this.uploadOptions.gzip = this.uploadOptions.gzip || false;
+    this.uploadOptions.makePublic = this.uploadOptions.makePublic || false;
+    this.uploadOptions.concurrency = this.uploadOptions.concurrency || 10;
 
     this.options = pick(
       options,
@@ -101,6 +104,7 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
       ]
     );
 
+    this.options.include = this.options.include || [];
     this.options.exclude = this.options.exclude || [];
   }
 
@@ -178,14 +182,21 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
     const bucket = this.client.bucket(this.uploadOptions.bucketName);
     // see https://hackernoon.com/concurrency-control-in-promises-with-bluebird-977249520f23
     // http://bluebirdjs.com/docs/api/promise.map.html#map-option-concurrency
-    return Promise.map(files,
-      file => bucket.upload(file.path, {
-        destination: this.uploadOptions.destinationNameFn(file),
-        gzip: this.uploadOptions.gzip || false,
-        public: this.uploadOptions.makePublic || false,
-        resumable: this.uploadOptions.resumable,
-        metadata: this.uploadOptions.metadataFn(file),
-      }),
-      { concurrency: this.uploadOptions.concurrency || 10 });
+    return Promise.map(
+      files,
+      file => bucket.upload(
+        file.path,
+        {
+          destination: this.uploadOptions.destinationNameFn(file),
+          gzip: this.uploadOptions.gzip,
+          public: this.uploadOptions.makePublic,
+          resumable: this.uploadOptions.resumable,
+          metadata: this.uploadOptions.metadataFn(file),
+        }
+      ),
+      {
+        concurrency: this.uploadOptions.concurrency,
+      }
+    );
   }
 };
