@@ -139,6 +139,153 @@ describe('WebpackGoogleCloudStoragePlugin', () => {
   });
 
   describe('constructor', () => {
+    context("with 'directory' that is not a string in 'options' argument", () => {
+      it("returns error", () => {
+        const options = {
+          directory: 1,
+          storageOptions: {},
+          uploadOptions: {},
+        };
+
+        expect(
+          () => new WebpackGoogleCloudStoragePlugin(options)
+        ).to.throw("Invalid prop `directory` of type `number` supplied to `WebpackGoogleCloudStoragePlugin`, expected `string`.");
+      });
+    });
+
+    context("with 'include' that is not an array in 'options' argument", () => {
+      it("returns error", () => {
+        const options = {
+          include: 1,
+          storageOptions: {},
+          uploadOptions: {},
+        };
+
+        expect(
+          () => new WebpackGoogleCloudStoragePlugin(options)
+        ).to.throw("Invalid prop `include` of type `number` supplied to `WebpackGoogleCloudStoragePlugin`, expected `array`.");
+      });
+    });
+
+    context("with 'exclude' that is not an array in 'options' argument", () => {
+      it("returns error", () => {
+        const options = {
+          exclude: 1,
+          storageOptions: {},
+          uploadOptions: {},
+        };
+
+        expect(
+          () => new WebpackGoogleCloudStoragePlugin(options)
+        ).to.throw("Invalid prop `exclude` of type `number` supplied to `WebpackGoogleCloudStoragePlugin`, expected `array`.");
+      });
+    });
+
+    context("with 'storageOptions' that is not an object in 'options' argument", () => {
+      it("returns error", () => {
+        const options = {
+          storageOptions: [],
+          uploadOptions: {},
+        };
+
+        expect(
+          () => new WebpackGoogleCloudStoragePlugin(options)
+        ).to.throw("Invalid prop `storageOptions` of type `array` supplied to `WebpackGoogleCloudStoragePlugin`, expected `object`.");
+      });
+    });
+
+    context("with 'uploadOptions' that is not an object in 'options' argument", () => {
+      it("returns error", () => {
+        const options = {
+          storageOptions: {},
+          uploadOptions: [],
+        };
+
+        expect(
+          () => new WebpackGoogleCloudStoragePlugin(options)
+        ).to.throw("Invalid prop `uploadOptions` of type `array` supplied to `WebpackGoogleCloudStoragePlugin`, expected `object`.");
+      });
+    });
+
+    context("with 'uploadOptions.bucketName' that is not a string in 'options' argument", () => {
+      it("returns error", () => {
+        const options = {
+          storageOptions: {},
+          uploadOptions: {
+            bucketName: 1,
+          },
+        };
+
+        expect(
+          () => new WebpackGoogleCloudStoragePlugin(options)
+        ).to.throw("Invalid prop `bucketName` of type `number` supplied to `WebpackGoogleCloudStoragePlugin`, expected `string`.");
+      });
+    });
+
+    context("with 'uploadOptions.gzip' that is not a bool in 'options' argument", () => {
+      it("returns error", () => {
+        const options = {
+          storageOptions: {},
+          uploadOptions: {
+            bucketName: "example",
+            gzip: 5,
+          },
+        };
+
+        expect(
+          () => new WebpackGoogleCloudStoragePlugin(options)
+        ).to.throw("Invalid prop `gzip` of type `number` supplied to `WebpackGoogleCloudStoragePlugin`, expected `boolean`.");
+      });
+    });
+
+    context("with 'uploadOptions.makePublic' that is not a bool in 'options' argument", () => {
+      it("returns error", () => {
+        const options = {
+          storageOptions: {},
+          uploadOptions: {
+            bucketName: "example",
+            makePublic: 5,
+          },
+        };
+
+        expect(
+          () => new WebpackGoogleCloudStoragePlugin(options)
+        ).to.throw("Invalid prop `makePublic` of type `number` supplied to `WebpackGoogleCloudStoragePlugin`, expected `boolean`.");
+      });
+    });
+
+    context("with 'uploadOptions.destinationNameFn' that is not a func in 'options' argument", () => {
+      it("returns error", () => {
+        const options = {
+          storageOptions: {},
+          uploadOptions: {
+            bucketName: "example",
+            destinationNameFn: "function",
+          },
+        };
+
+        expect(
+          () => new WebpackGoogleCloudStoragePlugin(options)
+        ).to.throw("Invalid prop `destinationNameFn` of type `string` supplied to `WebpackGoogleCloudStoragePlugin`, expected `function`.");
+      });
+    });
+
+    context("with 'uploadOptions.destinationNameFn' that is not a func in 'options' argument", () => {
+      it("returns error", () => {
+        const options = {
+          storageOptions: {},
+          uploadOptions: {
+            bucketName: "example",
+            destinationNameFn: "function",
+          },
+        };
+
+        expect(
+          () => new WebpackGoogleCloudStoragePlugin(options)
+        ).to.throw("Invalid prop `destinationNameFn` of type `string` supplied to `WebpackGoogleCloudStoragePlugin`, expected `function`.");
+      });
+    });
+
     context("with missing 'storageOptions' in 'options' argument", () => {
       it("returns error", () => {
         const options = {
