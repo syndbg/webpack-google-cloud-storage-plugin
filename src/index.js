@@ -1,7 +1,7 @@
 import Promise from 'bluebird';
 import PropTypes from 'prop-types';
 import merge from 'lodash.merge';
-import gcs from '@google-cloud/storage';
+import GoogleCloudStorage from '@google-cloud/storage';
 import path from 'path';
 import { pick } from './utils';
 
@@ -93,6 +93,12 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
     this.uploadOptions.makePublic = this.uploadOptions.makePublic || false;
     this.uploadOptions.concurrency = this.uploadOptions.concurrency || 10;
 
+    if (this.uploadOptions.resumable === undefined) {
+      this.uploadOptions.resumable = true;
+    } else {
+      this.uploadOptions.resumable = this.uploadOptions.resumable;
+    }
+
     this.options = pick(
       options,
       [
@@ -112,7 +118,7 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
       return;
     }
 
-    this.client = gcs(
+    this.client = new GoogleCloudStorage(
       merge(
         this.storageOptions,
         {

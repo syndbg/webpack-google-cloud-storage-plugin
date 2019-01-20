@@ -1,6 +1,11 @@
 import { expect } from 'chai';
 
 import WebpackGoogleCloudStoragePlugin from '../src/index';
+// NOTE: Import like this to work-around mocking of ES6 modules with default export function.
+import * as GoogleCloudStorage from '@google-cloud/storage';
+import sinon from 'sinon';
+import proxyquire from 'proxyquire';
+import { Promise as BluebirdPromise } from 'bluebird';
 
 
 describe('WebpackGoogleCloudStoragePlugin', () => {
@@ -89,7 +94,7 @@ describe('WebpackGoogleCloudStoragePlugin', () => {
         const result = WebpackGoogleCloudStoragePlugin.getAssetFiles(argument);
 
         result
-          .then(actual => assert.deepEqual(actual, expected))
+          .then(actual => expect(actual).to.deep.equal(expected))
           .finally(done);
       });
     });
@@ -101,7 +106,7 @@ describe('WebpackGoogleCloudStoragePlugin', () => {
         const result = WebpackGoogleCloudStoragePlugin.getAssetFiles(argument);
 
         result
-          .then(actual => assert.deepEqual(actual, expected))
+          .then(actual => expect(actual).to.deep.equal(expected))
           .finally(done);
       });
     });
@@ -362,6 +367,7 @@ describe('WebpackGoogleCloudStoragePlugin', () => {
         localOptions.uploadOptions.gzip = true;
         localOptions.uploadOptions.makePublic = true;
         localOptions.uploadOptions.concurrency = 5;
+        localOptions.uploadOptions.resumable = false;
         const actual = new WebpackGoogleCloudStoragePlugin(localOptions);
 
         expect(actual.uploadOptions).to.deep.equal(
@@ -372,7 +378,8 @@ describe('WebpackGoogleCloudStoragePlugin', () => {
             concurrency: 5,
             gzip: true,
             makePublic: true,
-          },
+            resumable: false,
+          }
         );
       });
 
@@ -489,6 +496,77 @@ describe('WebpackGoogleCloudStoragePlugin', () => {
 
           expect(actual.uploadOptions.concurrency).to.equal(10);
         });
+      });
+
+      context("without 'uploadOptions.resumable' provided in 'options' argument", () => {
+        it("sets 'uploadOptions.resumable' to true", () => {
+          const localOptions = Object.assign({}, options);
+          delete localOptions.uploadOptions.resumable;
+          const actual = new WebpackGoogleCloudStoragePlugin(localOptions);
+
+          expect(actual.uploadOptions.resumable).to.equal(true);
+        });
+      });
+    });
+  });
+
+  describe('#connect', () => {
+    context("with 'isConnected = false'", () => {
+      const options = {
+        storageOptions: {},
+        uploadOptions: {
+          bucketName: 'examplebucket',
+        },
+      };
+
+      it("creates a GoogleCloudStorage client with 'options.storageOptions' and Bluebird Promise as 'promise' option", () => {
+        const googleCloudStorageStub = sinon.spy(() => sinon.createStubInstance(GoogleCloudStorage.default));
+        const mockedWebpackGoogleCloudStoragePlugin = proxyquire(
+          '../src/index',
+          {
+            '@google-cloud/storage' : googleCloudStorageStub,
+          },
+        );
+
+        const plugin = new mockedWebpackGoogleCloudStoragePlugin(options);
+        plugin.connect();
+
+        expect(plugin.client).to.be.instanceOf(GoogleCloudStorage.default);
+        expect(googleCloudStorageStub.called).to.equal(true);
+        expect(googleCloudStorageStub.callCount).to.equal(1);
+
+        const expectCallArgs = Object.assign({}, options.storageOptions);
+        expectCallArgs.promise = BluebirdPromise;
+
+        expect(googleCloudStorageStub.getCall(0).args[0]).to.deep.equal(expectCallArgs);
+      });
+    });
+
+    context("with 'isConnected = true'", () => {
+      const options = {
+        storageOptions: {},
+        uploadOptions: {
+          bucketName: 'examplebucket',
+        },
+      };
+
+      class fakeGcs {
+        constructor() {
+          this.isFake = true;
+        }
+      }
+
+      const plugin = new WebpackGoogleCloudStoragePlugin(options);
+      plugin.isConnected = true;
+      plugin.client = new fakeGcs();
+
+      it('does not create a new client', () => {
+        expect(plugin.client).to.be.instanceOf(fakeGcs);
+
+        plugin.connect();
+
+        expect(plugin.client).to.be.instanceOf(fakeGcs);
+        expect(plugin.client.isFake).to.eq(true);
       });
     });
   });

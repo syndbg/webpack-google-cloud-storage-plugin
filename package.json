@@ -5,6 +5,7 @@
   "main": "dist/webpack-google-cloud-storage-plugin.js",
   "scripts": {
     "test": "NODE_ENV='test' mocha -t 10000 --require babel-register",
+    "test-debug": "NODE_ENV='test' mocha --inspect-brk -t 10000 --require babel-register",
     "build": "NODE_ENV=production webpack --config webpack.config.js",
     "prepare": "npm run build",
     "example": "cd examples && webpack --config webpack.config.js",
@@ -48,6 +49,8 @@
     "eslint-plugin-react": "^6.4.1",
     "json-loader": "^0.5.4",
     "mocha": "^5.2.0",
+    "proxyquire": "^2.1.0",
+    "sinon": "^7.2.3",
     "webpack": "^1.13.3",
     "webpack-node-externals": "^1.5.4"
   },
