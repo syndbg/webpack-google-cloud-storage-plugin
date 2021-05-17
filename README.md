@@ -83,6 +83,7 @@ module.exports = {
 
 Check out the examples folder for a working demo.
 
-Add your credentials to `storageOptions` and set `uploadOptions`.
+Add your credentials to `storageOptions` and set `uploadOptions`. Configure `cdnCacheInvalidateOptions` if you need
+to invalidate a Google CDN cache.
 
 Then you can run the demo webpack using `npm run example`.
