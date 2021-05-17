@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("bluebird"), require("@google-cloud/storage"), require("path"), require("recursive-readdir"));
+		module.exports = factory(require("bluebird"), require("@google-cloud/storage"), require("googleapis"), require("path"), require("recursive-readdir"));
 	else if(typeof define === 'function' && define.amd)
-		define(["bluebird", "@google-cloud/storage", "path", "recursive-readdir"], factory);
+		define(["bluebird", "@google-cloud/storage", "googleapis", "path", "recursive-readdir"], factory);
 	else if(typeof exports === 'object')
-		exports["webpack-google-cloud-storage-plugin"] = factory(require("bluebird"), require("@google-cloud/storage"), require("path"), require("recursive-readdir"));
+		exports["webpack-google-cloud-storage-plugin"] = factory(require("bluebird"), require("@google-cloud/storage"), require("googleapis"), require("path"), require("recursive-readdir"));
 	else
-		root["webpack-google-cloud-storage-plugin"] = factory(root["bluebird"], root["@google-cloud/storage"], root["path"], root["recursive-readdir"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_5__, __WEBPACK_EXTERNAL_MODULE_6__, __WEBPACK_EXTERNAL_MODULE_8__) {
+		root["webpack-google-cloud-storage-plugin"] = factory(root["bluebird"], root["@google-cloud/storage"], root["googleapis"], root["path"], root["recursive-readdir"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_5__, __WEBPACK_EXTERNAL_MODULE_6__, __WEBPACK_EXTERNAL_MODULE_7__, __WEBPACK_EXTERNAL_MODULE_9__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -74,17 +74,19 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _storage2 = _interopRequireDefault(_storage);
 
-	var _path = __webpack_require__(6);
+	var _googleapis = __webpack_require__(6);
+
+	var _path = __webpack_require__(7);
 
 	var _path2 = _interopRequireDefault(_path);
 
-	var _utils = __webpack_require__(7);
+	var _utils = __webpack_require__(8);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var recursive = _bluebird2.default.promisify(__webpack_require__(8));
+	var recursive = _bluebird2.default.promisify(__webpack_require__(9));
 
 	var pluginName = 'WebpackGoogleCloudStoragePlugin';
 
@@ -151,6 +153,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        include: _propTypes2.default.array,
 	        exclude: _propTypes2.default.array,
 	        storageOptions: _propTypes2.default.object.isRequired,
+	        cdnCacheInvalidateOptions: _propTypes2.default.shape({
+	          urlMap: _propTypes2.default.string.isRequired,
+	          path: _propTypes2.default.string,
+	          paths: _propTypes2.default.arrayOf(_propTypes2.default.string)
+	        }),
 	        uploadOptions: _propTypes2.default.shape({
 	          bucketName: _propTypes2.default.string.isRequired,
 	          forceCreateBucket: _propTypes2.default.bool,
@@ -180,9 +187,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    _propTypes2.default.validateWithErrors(this.constructor.schema, options, pluginName);
 
+	    if (options.cdnCacheInvalidateOptions && options.cdnCacheInvalidateOptions.path && options.cdnCacheInvalidateOptions.paths) {
+	      throw new Error('Specify only cdnCacheInvalidateOptions.path or cdnCacheInvalidateOptions.paths, not both.');
+	    }
+
 	    this.isConnected = false;
 
 	    this.storageOptions = options.storageOptions;
+	    this.cdnCacheInvalidateOptions = options.cdnCacheInvalidateOptions;
 	    this.uploadOptions = options.uploadOptions;
 	    this.uploadOptions.destinationNameFn = this.uploadOptions.destinationNameFn || this.constructor.defaultDestinationNameFn;
 	    this.uploadOptions.metadataFn = this.uploadOptions.metadataFn || this.constructor.defaultMetadataFn;
@@ -208,6 +220,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	      this.client = (0, _storage2.default)((0, _lodash2.default)(this.storageOptions, {
 	        promise: _bluebird2.default
 	      }));
+
+	      this.computeClient = _googleapis.google.compute({
+	        version: 'v1',
+	        auth: new _googleapis.google.auth.GoogleAuth((0, _lodash2.default)(this.storageOptions, {
+	          scopes: ['https://www.googleapis.com/auth/cloud-platform']
+	        }))
+	      });
 
 	      this.isConnected = true;
 	    }
@@ -248,6 +267,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      return this.filterFiles(files).then(function (filteredFiles) {
 	        return _this2.uploadFiles(filteredFiles);
+	      }).then(function () {
+	        return _this2.invalidateCache();
 	      });
 	    }
 	  }, {
@@ -305,6 +326,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	          metadata: _this4.uploadOptions.metadataFn(file)
 	        });
 	      }, { concurrency: this.uploadOptions.concurrency || 10 });
+	    }
+	  }, {
+	    key: 'invalidateCache',
+	    value: function invalidateCache() {
+	      var _this5 = this;
+
+	      if (!this.cdnCacheInvalidateOptions) {
+	        return _bluebird2.default.resolve();
+	      }
+
+	      var paths = this.cdnCacheInvalidateOptions.paths || [this.cdnCacheInvalidateOptions.path || '/*'];
+
+	      return _bluebird2.default.all(paths.map(function (cachePath) {
+	        return _this5.computeClient.urlMaps.invalidateCache({
+	          project: _this5.storageOptions.projectId,
+	          urlMap: _this5.cdnCacheInvalidateOptions.urlMap,
+	          requestBody: {
+	            path: cachePath
+	          }
+	        });
+	      }));
 	    }
 	  }]);
 
@@ -838,7 +880,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */(function(module) {/**
 	 * Lodash (Custom Build) <https://lodash.com/>
 	 * Build: `lodash modularize exports="npm" -o ./`
-	 * Copyright JS Foundation and other contributors <https://js.foundation/>
+	 * Copyright OpenJS Foundation and other contributors <https://openjsf.org/>
 	 * Released under MIT license <https://lodash.com/license>
 	 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
 	 * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -941,6 +983,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	/** Used to access faster Node.js helpers. */
 	var nodeUtil = (function() {
 	  try {
+	    // Use `util.types` for Node.js 10+.
+	    var types = freeModule && freeModule.require && freeModule.require('util').types;
+
+	    if (types) {
+	      return types;
+	    }
+
+	    // Legacy `process.binding('util')` for Node.js < 10.
 	    return freeProcess && freeProcess.binding && freeProcess.binding('util');
 	  } catch (e) {}
 	}());
@@ -1024,20 +1074,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return function(arg) {
 	    return func(transform(arg));
 	  };
-	}
-
-	/**
-	 * Gets the value at `key`, unless `key` is "__proto__".
-	 *
-	 * @private
-	 * @param {Object} object The object to query.
-	 * @param {string} key The key of the property to get.
-	 * @returns {*} Returns the property value.
-	 */
-	function safeGet(object, key) {
-	  return key == '__proto__'
-	    ? undefined
-	    : object[key];
 	}
 
 	/** Used for built-in method references. */
@@ -1761,8 +1797,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return;
 	  }
 	  baseFor(source, function(srcValue, key) {
+	    stack || (stack = new Stack);
 	    if (isObject(srcValue)) {
-	      stack || (stack = new Stack);
 	      baseMergeDeep(object, source, key, srcIndex, baseMerge, customizer, stack);
 	    }
 	    else {
@@ -1838,7 +1874,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      if (isArguments(objValue)) {
 	        newValue = toPlainObject(objValue);
 	      }
-	      else if (!isObject(objValue) || (srcIndex && isFunction(objValue))) {
+	      else if (!isObject(objValue) || isFunction(objValue)) {
 	        newValue = initCloneObject(srcValue);
 	      }
 	    }
@@ -2248,6 +2284,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	    otherArgs[start] = transform(array);
 	    return apply(func, this, otherArgs);
 	  };
+	}
+
+	/**
+	 * Gets the value at `key`, unless `key` is "__proto__" or "constructor".
+	 *
+	 * @private
+	 * @param {Object} object The object to query.
+	 * @param {string} key The key of the property to get.
+	 * @returns {*} Returns the property value.
+	 */
+	function safeGet(object, key) {
+	  if (key === 'constructor' && typeof object[key] === 'function') {
+	    return;
+	  }
+
+	  if (key == '__proto__') {
+	    return;
+	  }
+
+	  return object[key];
 	}
 
 	/**
@@ -2827,10 +2883,16 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 6 */
 /***/ (function(module, exports) {
 
-	module.exports = require("path");
+	module.exports = require("googleapis");
 
 /***/ }),
 /* 7 */
+/***/ (function(module, exports) {
+
+	module.exports = require("path");
+
+/***/ }),
+/* 8 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -2873,7 +2935,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports) {
 
 	module.exports = require("recursive-readdir");

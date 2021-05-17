@@ -58,8 +58,33 @@ module.exports = {
         // E.g: app.js => assets/v1/app.js,
         // file is an object with { name:, path: }.
         destinationNameFn: file =>
-           path.join('assets', file.path)
+          path.join('assets', file.path)
         ,
+        // You can use the metadataFn to set file metadata based on the path:
+        // See: https://cloud.google.com/storage/docs/json_api/v1/objects/insert#request_properties_JSON for all
+        // options, though cacheControl is likely to be the most relevant:
+        metadataFn: (file) => {
+          if (/.html$/.test(file.path)) {
+            return {
+              cacheControl: 'no-store',
+            };
+          }
+
+          return {
+            cacheControl: 'public, max-age=60',
+          };
+        },
+      },
+      // Optional, used to invalidate the cache in Google Cloud CDN:
+      // See https://cloud.google.com/cdn/docs/invalidating-cached-content#gclou
+      cdnCacheInvalidateOptions: {
+        // The URL map is likely the name of your Cloud CDN Origin
+        // Run `gcloud compute url-maps list` to see a list of your URL maps
+        urlMap: 'my-storage-load-balancer',
+        // (Optional) If only a certain directory needs to be invalidated, list it here:
+        // path: '/*', // This is the default.
+        // (Optional) Or if there are multiple paths you want to invalidate:
+        // paths: ['/', '/index.html', '/manifest.json'],
       },
     }),
   ],

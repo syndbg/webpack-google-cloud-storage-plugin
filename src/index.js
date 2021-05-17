@@ -2,6 +2,7 @@ import Promise from 'bluebird';
 import PropTypes from 'prop-types';
 import merge from 'lodash.merge';
 import gcs from '@google-cloud/storage';
+import { google } from 'googleapis';
 import path from 'path';
 import { pick } from './utils';
 
@@ -26,6 +27,11 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
       include: PropTypes.array,
       exclude: PropTypes.array,
       storageOptions: PropTypes.object.isRequired,
+      cdnCacheInvalidateOptions: PropTypes.shape({
+        urlMap: PropTypes.string.isRequired,
+        path: PropTypes.string,
+        paths: PropTypes.arrayOf(PropTypes.string),
+      }),
       uploadOptions: PropTypes.shape(
         {
           bucketName: PropTypes.string.isRequired,
@@ -86,9 +92,18 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
       pluginName
     );
 
+    if (
+      options.cdnCacheInvalidateOptions &&
+      options.cdnCacheInvalidateOptions.path &&
+      options.cdnCacheInvalidateOptions.paths
+    ) {
+      throw new Error('Specify only cdnCacheInvalidateOptions.path or cdnCacheInvalidateOptions.paths, not both.');
+    }
+
     this.isConnected = false;
 
     this.storageOptions = options.storageOptions;
+    this.cdnCacheInvalidateOptions = options.cdnCacheInvalidateOptions;
     this.uploadOptions = options.uploadOptions;
     this.uploadOptions.destinationNameFn = this.uploadOptions.destinationNameFn ||
       this.constructor.defaultDestinationNameFn;
@@ -124,6 +139,18 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
       )
     );
 
+    this.computeClient = google.compute({
+      version: 'v1',
+      auth: new google.auth.GoogleAuth(
+        merge(
+          this.storageOptions,
+          {
+            scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+          }
+        )
+      ),
+    });
+
     this.isConnected = true;
   }
 
@@ -151,7 +178,8 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
 
   handleFiles(files) {
     return this.filterFiles(files)
-      .then(filteredFiles => this.uploadFiles(filteredFiles));
+      .then(filteredFiles => this.uploadFiles(filteredFiles))
+      .then(() => this.invalidateCache());
   }
 
   apply(compiler) {
@@ -196,5 +224,22 @@ module.exports = class WebpackGoogleCloudStoragePlugin {
         metadata: this.uploadOptions.metadataFn(file),
       }),
       { concurrency: this.uploadOptions.concurrency || 10 });
+  }
+
+  invalidateCache() {
+    if (!this.cdnCacheInvalidateOptions) {
+      return Promise.resolve();
+    }
+
+    const paths = this.cdnCacheInvalidateOptions.paths || [this.cdnCacheInvalidateOptions.path || '/*'];
+
+    return Promise.all(paths.map(cachePath =>
+      this.computeClient.urlMaps.invalidateCache({
+        project: this.storageOptions.projectId,
+        urlMap: this.cdnCacheInvalidateOptions.urlMap,
+        requestBody: {
+          path: cachePath,
+        },
+      })));
   }
 };
