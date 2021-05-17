@@ -65,6 +65,17 @@ module.exports = {
         concurrency: 5,
       },
     }),
+    // Optional, used to invalidate the cache in Google Cloud CDN:
+    // See https://cloud.google.com/cdn/docs/invalidating-cached-content#gclou
+    cdnCacheInvalidateOptions: {
+      // The URL map is likely the name of your Cloud CDN Origin
+      // Run `gcloud compute url-maps list` to see a list of your URL maps
+      urlMap: 'my-url-map',
+      // (Optional) If only a certain directory needs to be invalidated, list it here:
+      path: '/*', // This is the default.
+      // (Optional) Or if there are multiple paths you want to invalidate:
+      paths: ['/', '/index.html', '/manifest.json']
+    },
   ],
 };
 ```
